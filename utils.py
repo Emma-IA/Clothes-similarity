@@ -6,13 +6,19 @@ from torchvision import transforms
 import matplotlib.pyplot as plt
 
 class myDataset(Dataset):
-    def __init__(self, dir_image_folder, get_preprocessed_image = True):
+    def __init__(self, 
+            dir_image_folder,
+            shape = None,  
+            get_preprocessed_image = True, 
+            image_limit = None
+        ):
         self.preprocess  = torchvision.models.ResNet50_Weights.IMAGENET1K_V2.transforms()
+        self.shape = shape
         self.dir_image_folder = dir_image_folder
-        self.image_names = self.get_image_names(dir_image_folder)
+        self.image_names = self.get_image_names(dir_image_folder, image_limit)
         self.get_preprocessed_image = get_preprocessed_image
 
-    def get_image_names(self, dir_image_folder):
+    def get_image_names(self, dir_image_folder, image_limit):
         """
         Function to Combine Directory Path with individual Image Paths
         
@@ -24,7 +30,9 @@ class myDataset(Dataset):
             for filename in filenames:
                 fullpath = os.path.join(dirname, filename)
                 image_names.append(fullpath)
-        return image_names
+            if image_limit is not None:
+                if len(image_limit) == image_limit: 
+                    return image_names
     
     def __len__(self):
         return len(self.image_names)
@@ -32,6 +40,16 @@ class myDataset(Dataset):
     def __getitem__(self, idx):
         image_path = self.image_names[idx]
         img = Image.open(image_path)
+        if self.get_preprocessed_image:
+            img = transforms.Pad(padding=256)(img)
+            img = self.preprocess(img)
+        return img
+    
+    def __getitem__(self, idx):
+        image_path = self.image_names[idx]
+        img = Image.open(image_path)
+        if self.shape:
+            img = img.resize((self.shape[0], self.shape[1]))
         if self.get_preprocessed_image:
             img = transforms.Pad(padding=256)(img)
             img = self.preprocess(img)
@@ -44,8 +62,8 @@ if __name__ == "__main__":
     print(my_path)
     dataset = myDataset(my_path, get_preprocessed_image= get_preprocessed_image)
     image_names = dataset.get_image_names(my_path)
-    print(len(dataset))
-    print(len(image_names))
+    # print(len(dataset))
+    # print(len(image_names))
     if get_preprocessed_image:
         print(dataset[20].shape)
         plt.imshow(dataset[20].permute(1, 2, 0))
