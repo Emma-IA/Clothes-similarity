@@ -66,6 +66,10 @@ class myDataset(Dataset):
         if self.get_preprocessed_image:
             img = transforms.Pad(padding=256)(img)
             img = self.preprocess(img)
+        #check if the image is in the right format (3, 224, 224)
+        if img.shape[0] != 3:
+            # Copy the image to all 3 channels
+            img = img[0].repeat(3, 1, 1)
         return img
 
 if __name__ == "__main__":
