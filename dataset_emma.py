@@ -32,28 +32,19 @@ class myDataset(Dataset):
     def __getitem__(self, idx):
         image_path = self.image_names[idx]
         img = Image.open(image_path)
-        # Resize the image so that at least one dimension is equal to 128
-        width, height = img.size
-        aspect_ratio = width / height
-        if width <= height:
-            new_width = 128
-            new_height = int(new_width / aspect_ratio)
-        else:
-            new_height = 128
-            new_width = int(new_height * aspect_ratio)
-        img = img.resize((new_width, new_height))
+        img = img.resize((224, 224))
         if self.get_preprocessed_image:
             img = transforms.Pad(padding=256)(img)
             img = self.preprocess(img)
         return img
     
-    def create_smaller_dataset(self, folder_name = 'smaller_dataset', nb_img=1000):
+    def create_smaller_dataset(self, path, folder_name = 'smaller_dataset', nb_img=1000):
         """
         Function to create a smaller folder with images from the dataset
         
         parameters: nb_img - nb of images to be included in the new folder
         """
-        new_folder = os.path.join(self.dir_image_folder, folder_name)
+        new_folder = os.path.join(path, folder_name)
         if not os.path.exists(new_folder):
             os.makedirs(new_folder)
         for idx in range(nb_img):
