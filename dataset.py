@@ -3,6 +3,7 @@ from torch.utils.data import Dataset
 import torchvision
 from PIL import Image
 from torchvision import transforms
+import torch
 import matplotlib.pyplot as plt
  
 class myDataset(Dataset):
@@ -33,6 +34,9 @@ class myDataset(Dataset):
             image_names.append(fullpath)
         return image_names
 
+    def get_name_img(self, idx):
+        return self.image_names[idx]
+
     def get_image_names_hm(self, dir_image_folder_hm):
         """
         Function to Combine Directory Path with individual Image Paths
@@ -56,20 +60,26 @@ class myDataset(Dataset):
             return len(self.image_names)
     
     def __getitem__(self, idx):
+
         if self.dataset_type == 'hm':
             image_path = self.image_names_hm[idx]
         elif self.dataset_type == 'fash':
             image_path = self.image_names_fash[idx]
         else:
             image_path = self.image_names[idx]
+
         img = Image.open(image_path)
+        #check if the image is in the right format of 3 channels
+
         if self.get_preprocessed_image:
-            img = transforms.Pad(padding=256)(img)
-            img = self.preprocess(img)
-        #check if the image is in the right format (3, 224, 224)
-        if img.shape[0] != 3:
-            # Copy the image to all 3 channels
-            img = img[0].repeat(3, 1, 1)
+            try : 
+                img = transforms.Pad(padding=256)(img)
+                img = self.preprocess(img)
+            except Exception as e:
+                print(f"Error in preprocessing image {image_path}: {e}")
+                #replace the image with a black image
+                img = Image.new('RGB', (256, 256), (0, 0, 0))
+                img = self.preprocess(img)
         return img
 
 if __name__ == "__main__":
