@@ -100,6 +100,7 @@ class myDataset_labelHM(Dataset):
         self.image_names = self.get_image_names_hm(dir_image_folder_hm)
         self.get_preprocessed_image = get_preprocessed_image
         self.cv_label_hm = pd.read_csv(dir_cv_label_hm)['product_type_no'].values
+        self.img_name_to_ixd = {img_name: i for i, img_name in enumerate(self.image_names)}
 
 
     def get_name_img(self, idx):
@@ -141,6 +142,9 @@ class myDataset_labelHM(Dataset):
                 img = Image.new('RGB', (256, 256), (0, 0, 0))
                 img = self.preprocess(img)
         return img, self.cv_label_hm[idx], idx
+
+    def get_index_from_img_name(self, img_name):
+        return self.img_name_to_ixd[img_name]
 
 if __name__ == "__main__":
     
