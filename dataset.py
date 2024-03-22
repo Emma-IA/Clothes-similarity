@@ -81,7 +81,7 @@ class myDataset(Dataset):
                 #replace the image with a black image
                 img = Image.new('RGB', (256, 256), (0, 0, 0))
                 img = self.preprocess(img)
-        return img
+        return img, idx
     
 class myDataset_labelHM(Dataset):
     def __init__(self, dir_image_folder_hm,dir_cv_label_hm, get_preprocessed_image = True):
@@ -140,7 +140,7 @@ class myDataset_labelHM(Dataset):
                 #replace the image with a black image
                 img = Image.new('RGB', (256, 256), (0, 0, 0))
                 img = self.preprocess(img)
-        return img, self.cv_label_hm[idx]
+        return img, self.cv_label_hm[idx], idx
 
 if __name__ == "__main__":
     
