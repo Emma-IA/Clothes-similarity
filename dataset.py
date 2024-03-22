@@ -5,6 +5,7 @@ from PIL import Image
 from torchvision import transforms
 import torch
 import matplotlib.pyplot as plt
+import pandas as pd
  
 class myDataset(Dataset):
     def __init__(self, dir_image_folder_hm, dir_image_folder_fash, get_preprocessed_image = True, dataset_type = 'both'):
@@ -81,6 +82,65 @@ class myDataset(Dataset):
                 img = Image.new('RGB', (256, 256), (0, 0, 0))
                 img = self.preprocess(img)
         return img
+    
+class myDataset_labelHM(Dataset):
+    def __init__(self, dir_image_folder_hm,dir_cv_label_hm, get_preprocessed_image = True):
+        """
+
+        Function to Initialize the Dataset
+
+        parameters: dir_image_folder_hm(string) - Path of directory containing images of human faces
+                    dir_image_folder_fash(string) - Path of directory containing images of fashion items
+                    get_preprocessed_image(boolean) - If True, returns preprocessed image
+                    dataset_type(string) - Type of dataset to be used. Options: 'hm', 'fash', 'both'
+
+        """
+        self.preprocess  = torchvision.models.ResNet50_Weights.IMAGENET1K_V2.transforms()
+        self.dir_image_folder_hm = dir_image_folder_hm
+        self.image_names = self.get_image_names_hm(dir_image_folder_hm)
+        self.get_preprocessed_image = get_preprocessed_image
+        self.cv_label_hm = pd.read_csv(dir_cv_label_hm)['product_type_no'].values
+
+
+    def get_name_img(self, idx):
+        return self.image_names[idx]
+    
+    def get_num_classes(self):
+        return len(set(self.cv_label_hm))
+
+    def get_image_names_hm(self, dir_image_folder_hm):
+        """
+        Function to Combine Directory Path with individual Image Paths
+        
+        parameters: path(string) - Path of directory
+        returns: image_names(string) - Full Image Path
+        """
+        image_names = []
+        for dirname, _, filenames in os.walk(dir_image_folder_hm):
+            for filename in filenames:
+                fullpath = os.path.join(dirname, filename)
+                image_names.append(fullpath)
+        return image_names
+    
+    def __len__(self):
+        return len(self.image_names)
+    
+    def __getitem__(self, idx):
+        image_path = self.image_names[idx]
+
+        img = Image.open(image_path)
+        #check if the image is in the right format of 3 channels
+
+        if self.get_preprocessed_image:
+            try : 
+                img = transforms.Pad(padding=256)(img)
+                img = self.preprocess(img)
+            except Exception as e:
+                print(f"Error in preprocessing image {image_path}: {e}")
+                #replace the image with a black image
+                img = Image.new('RGB', (256, 256), (0, 0, 0))
+                img = self.preprocess(img)
+        return img, self.cv_label_hm[idx]
 
 if __name__ == "__main__":
     
