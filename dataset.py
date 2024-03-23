@@ -78,7 +78,7 @@ class myDataset(Dataset):
             except Exception as e:
                 print(f"Error in preprocessing image {image_path}: {e}")
                 print("Please remove it from the dataset")
-        return img, idx
+        return img, idx, image_path
     
     def get_index_from_img_name(self, img_name):
         return self.img_name_to_ixd[img_name]
@@ -140,7 +140,7 @@ class myDataset_labelHM(Dataset):
             except Exception as e:
                 print(f"Error in preprocessing image {image_path}: {e}")
                 print("Please remove it from the dataset")
-        return img, self.cv_label_hm[idx], idx
+        return img, self.cv_label_hm[idx], idx, image_path
 
     def get_index_from_img_name(self, img_name):
         return self.img_name_to_ixd[img_name]
