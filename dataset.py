@@ -27,6 +27,7 @@ class myDataset(Dataset):
         self.image_names = self.image_names_hm + self.image_names_fash
         self.get_preprocessed_image = get_preprocessed_image
         self.dataset_type = dataset_type
+        self.img_name_to_ixd = {img_name: i for i, img_name in enumerate(self.image_names)}
 
     def get_image_names_fash(self, dir_image_folder_fash):
         image_names = []
