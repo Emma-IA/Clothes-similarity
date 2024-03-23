@@ -5,6 +5,7 @@ from PIL import Image
 from torchvision import transforms
 import matplotlib.pyplot as plt
 import pandas as pd
+from sklearn.preprocessing import LabelEncoder
  
 class myDataset(Dataset):
     def __init__(self, dir_image_folder_hm, dir_image_folder_fash, get_preprocessed_image = True, dataset_type = 'both'):
@@ -99,6 +100,8 @@ class myDataset_labelHM(Dataset):
         self.image_names = self.get_image_names_hm(dir_image_folder_hm)
         self.get_preprocessed_image = get_preprocessed_image
         self.cv_label_hm = pd.read_csv(dir_cv_label_hm)['product_type_no'].values
+        self.label_encoder = LabelEncoder()
+        self.cv_label_hm = self.label_encoder.fit_transform(self.cv_label_hm)
         self.img_name_to_ixd = {img_name: i for i, img_name in enumerate(self.image_names)}
 
 
