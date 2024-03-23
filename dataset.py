@@ -3,7 +3,6 @@ from torch.utils.data import Dataset
 import torchvision
 from PIL import Image
 from torchvision import transforms
-import torch
 import matplotlib.pyplot as plt
 import pandas as pd
  
@@ -70,7 +69,6 @@ class myDataset(Dataset):
             image_path = self.image_names[idx]
 
         img = Image.open(image_path)
-        #check if the image is in the right format of 3 channels
 
         if self.get_preprocessed_image:
             try : 
@@ -78,10 +76,11 @@ class myDataset(Dataset):
                 img = self.preprocess(img)
             except Exception as e:
                 print(f"Error in preprocessing image {image_path}: {e}")
-                #replace the image with a black image
-                img = Image.new('RGB', (256, 256), (0, 0, 0))
-                img = self.preprocess(img)
+                print("Please remove it from the dataset")
         return img, idx
+    
+    def get_index_from_img_name(self, img_name):
+        return self.img_name_to_ixd[img_name]
     
 class myDataset_labelHM(Dataset):
     def __init__(self, dir_image_folder_hm,dir_cv_label_hm, get_preprocessed_image = True):
@@ -130,7 +129,6 @@ class myDataset_labelHM(Dataset):
         image_path = self.image_names[idx]
 
         img = Image.open(image_path)
-        #check if the image is in the right format of 3 channels
 
         if self.get_preprocessed_image:
             try : 
@@ -138,9 +136,7 @@ class myDataset_labelHM(Dataset):
                 img = self.preprocess(img)
             except Exception as e:
                 print(f"Error in preprocessing image {image_path}: {e}")
-                #replace the image with a black image
-                img = Image.new('RGB', (256, 256), (0, 0, 0))
-                img = self.preprocess(img)
+                print("Please remove it from the dataset")
         return img, self.cv_label_hm[idx], idx
 
     def get_index_from_img_name(self, img_name):
@@ -155,56 +151,76 @@ if __name__ == "__main__":
     print(my_path_fash)
     
 
-    #testing the dataset hm
-    dataset = myDataset(my_path_hm, my_path_fash, get_preprocessed_image, 'hm')
-    image_names = dataset.get_image_names_hm(my_path_hm)
-    print(len(dataset))
-    print(len(image_names))
-    if get_preprocessed_image:
-        print(dataset[20].shape)
-        plt.imshow(dataset[20].permute(1, 2, 0))
-        plt.show()
-    else:
-        print(dataset[20].size)
-        plt.imshow(dataset[20])
-        plt.show()
+    # #testing the dataset hm
+    # dataset = myDataset(my_path_hm, my_path_fash, get_preprocessed_image, 'hm')
+    # image_names = dataset.get_image_names_hm(my_path_hm)
+    # print(len(dataset))
+    # print(len(image_names))
+    # if get_preprocessed_image:
+    #     print(dataset[20][0].shape)
+    #     plt.imshow(dataset[20][0].permute(1, 2, 0))
+    #     plt.show()
+    # else:
+    #     print(dataset[20][0].size)
+    #     plt.imshow(dataset[20][0])
+    #     plt.show()
     
-    #testing the dataset fash
-    dataset = myDataset(my_path_hm, my_path_fash, get_preprocessed_image, 'fash')
-    image_names = dataset.get_image_names_fash(my_path_fash)
-    print(len(dataset))
-    print(len(image_names))
-    if get_preprocessed_image:
-        print(dataset[20].shape)
-        plt.imshow(dataset[20].permute(1, 2, 0))
-        plt.show()
-    else:
-        print(dataset[20].size)
-        plt.imshow(dataset[20])
-        plt.show()
+    # #testing the dataset fash
+    # dataset = myDataset(my_path_hm, my_path_fash, get_preprocessed_image, 'fash')
+    # image_names = dataset.get_image_names_fash(my_path_fash)
+    # print(len(dataset))
+    # print(len(image_names))
+    # if get_preprocessed_image:
+    #     print(dataset[20][0].shape)
+    #     plt.imshow(dataset[20][0].permute(1, 2, 0))
+    #     plt.show()
+    # else:
+    #     print(dataset[20][0].size)
+    #     plt.imshow(dataset[20][0])
+    #     plt.show()
     
-    #testing the dataset using both
-    dataset = myDataset(my_path_hm, my_path_fash, get_preprocessed_image, 'both')
-    image_names_hm = dataset.get_image_names_hm(my_path_hm)
-    image_names_fash = dataset.get_image_names_fash(my_path_fash)
-    print(len(dataset))
-    print(len(image_names_hm))
-    print(len(image_names_fash))
-    if get_preprocessed_image:
-        print(dataset[20].shape)
-        plt.imshow(dataset[20].permute(1, 2, 0))
-        plt.show()
-    else:
-        print(dataset[20].size)
-        plt.imshow(dataset[20])
-        plt.show()
+    # #testing the dataset using both
+    # dataset = myDataset(my_path_hm, my_path_fash, get_preprocessed_image, 'both')
+    # image_names_hm = dataset.get_image_names_hm(my_path_hm)
+    # image_names_fash = dataset.get_image_names_fash(my_path_fash)
+    # print(len(dataset))
+    # print(len(image_names_hm))
+    # print(len(image_names_fash))
+    # if get_preprocessed_image:
+    #     print(dataset[20][0].shape)
+    #     plt.imshow(dataset[20][0].permute(1, 2, 0))
+    #     plt.show()
+    # else:
+    #     print(dataset[20][0].size)
+    #     plt.imshow(dataset[20][0])
+    #     plt.show()
     
-    if get_preprocessed_image:
-        print(dataset[20 + len(image_names_hm)].shape)
-        plt.imshow(dataset[20+len(image_names_hm)].permute(1, 2, 0))
-        plt.show()
-    else:
-        print(dataset[20 + len(image_names_hm)].size)
-        plt.imshow(dataset[20+len(image_names_hm)])
-        plt.show()
+    # if get_preprocessed_image:
+    #     print(dataset[20 + len(image_names_hm)][0].shape)
+    #     plt.imshow(dataset[20+len(image_names_hm)][0].permute(1, 2, 0))
+    #     plt.show()
+    # else:
+    #     print(dataset[20 + len(image_names_hm)][0].size)
+    #     plt.imshow(dataset[20+len(image_names_hm)][0])
+    #     plt.show()
+
+    #testing myDataset_labelHM
+    my_path_hm = os.path.join(os.getcwd(), 'data/h&mdataset/images/')
+    my_path_fash = os.path.join(os.getcwd(), 'data/fashion-dataset/images/')
+    my_path_cv_label_hm = os.path.join(os.getcwd(), 'data/h&mdataset/articles.csv')
+    dataset = myDataset_labelHM(my_path_hm, my_path_cv_label_hm, get_preprocessed_image)
+    print(len(dataset))
+    print(dataset.get_num_classes())
+    print(dataset[20][0].shape)
+    plt.imshow(dataset[20][0].permute(1, 2, 0))
+    plt.show()
+    print(dataset[20][1])
+    print(dataset[20][2])
+    print(dataset.get_name_img(20))
+    print(dataset.get_index_from_img_name(dataset.get_name_img(20)))
+    print(dataset[dataset.get_index_from_img_name(dataset.get_name_img(20))][2])
+    print(dataset[dataset.get_index_from_img_name(dataset.get_name_img(20))][1])
+    print(dataset[dataset.get_index_from_img_name(dataset.get_name_img(20))][0].shape)
+    plt.imshow(dataset[dataset.get_index_from_img_name(dataset.get_name_img(20))][0].permute(1, 2, 0))
+
 
