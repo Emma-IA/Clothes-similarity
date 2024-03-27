@@ -49,7 +49,11 @@ class myDataset(Dataset):
         image_names = []
         for dirname, _, filenames in os.walk(dir_image_folder_hm):
             for filename in filenames:
-                fullpath = os.path.join(dirname, filename)
+                if filename.endswith('.jpg'):
+                    fullpath = os.path.join(dirname, filename)
+                else :
+                    print(f"Skipping {filename} as it is not a jpg file")
+                    continue
                 image_names.append(fullpath)
         return image_names
     
@@ -96,6 +100,7 @@ class myDataset_labelHM(Dataset):
                     dataset_type(string) - Type of dataset to be used. Options: 'hm', 'fash', 'both'
 
         """
+        self.label_encoder = LabelEncoder()
         self.preprocess  = torchvision.models.ResNet50_Weights.IMAGENET1K_V2.transforms()
         self.dir_image_folder_hm = dir_image_folder_hm
         self.image_names = self.get_image_names_hm(dir_image_folder_hm)
