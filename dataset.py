@@ -24,10 +24,15 @@ class myDataset(Dataset):
         self.dir_image_folder_fash = dir_image_folder_fash
         self.image_names_hm = self.get_image_names_hm(dir_image_folder_hm)
         self.image_names_fash = self.get_image_names_fash(dir_image_folder_fash)
-        self.image_names = self.image_names_hm + self.image_names_fash
         self.get_preprocessed_image = get_preprocessed_image
         self.dataset_type = dataset_type
-        self.img_name_to_ixd = {img_name: i for i, img_name in enumerate(self.image_names)}
+        if self.dataset_type == 'hm':
+            self.image_names = self.image_names_hm
+        elif self.dataset_type == 'fash':
+            self.image_names = self.image_names_fash
+        else:
+            self.image_names = self.image_names_hm + self.image_names_fash
+        self.img_name_to_ixd = {img_name[len(img_name)-18:]: i for i, img_name in enumerate(self.image_names)}
 
     def get_image_names_fash(self, dir_image_folder_fash):
         image_names = []
@@ -107,7 +112,7 @@ class myDataset_labelHM(Dataset):
         self.get_preprocessed_image = get_preprocessed_image
         self.cv_label_hm = pd.read_csv(dir_cv_label_hm)['product_type_no'].values
         self.cv_label_hm = self.label_encoder.fit_transform(self.cv_label_hm)
-        self.img_name_to_ixd = {img_name: i for i, img_name in enumerate(self.image_names)}
+        self.img_name_to_ixd = {img_name[len(img_name)-18:]: i for i, img_name in enumerate(self.image_names)}
 
 
     def get_name_img(self, idx):
@@ -153,11 +158,13 @@ class myDataset_labelHM(Dataset):
 if __name__ == "__main__":
     
     get_preprocessed_image = True
+    train_test_split = 0.9
     my_path_hm = os.path.join(os.getcwd(), 'data/h&mdataset/images/')
     my_path_fash = os.path.join(os.getcwd(), 'data/fashion-dataset/images/')
-    print(my_path_hm)
-    print(my_path_fash)
-    
+
+    dataset = myDataset(my_path_hm, my_path_fash, get_preprocessed_image, 'hm')
+    print(dataset.img_name_to_ixd)
+        
 
     # #testing the dataset hm
     # dataset = myDataset(my_path_hm, my_path_fash, get_preprocessed_image, 'hm')
@@ -213,22 +220,22 @@ if __name__ == "__main__":
     #     plt.show()
 
     #testing myDataset_labelHM
-    my_path_hm = os.path.join(os.getcwd(), 'data/h&mdataset/images/')
-    my_path_fash = os.path.join(os.getcwd(), 'data/fashion-dataset/images/')
-    my_path_cv_label_hm = os.path.join(os.getcwd(), 'data/h&mdataset/articles.csv')
-    dataset = myDataset_labelHM(my_path_hm, my_path_cv_label_hm, get_preprocessed_image)
-    print(len(dataset))
-    print(dataset.get_num_classes())
-    print(dataset[20][0].shape)
-    plt.imshow(dataset[20][0].permute(1, 2, 0))
-    plt.show()
-    print(dataset[20][1])
-    print(dataset[20][2])
-    print(dataset.get_name_img(20))
-    print(dataset.get_index_from_img_name(dataset.get_name_img(20)))
-    print(dataset[dataset.get_index_from_img_name(dataset.get_name_img(20))][2])
-    print(dataset[dataset.get_index_from_img_name(dataset.get_name_img(20))][1])
-    print(dataset[dataset.get_index_from_img_name(dataset.get_name_img(20))][0].shape)
-    plt.imshow(dataset[dataset.get_index_from_img_name(dataset.get_name_img(20))][0].permute(1, 2, 0))
+    # my_path_hm = os.path.join(os.getcwd(), 'data/h&mdataset/images/')
+    # my_path_fash = os.path.join(os.getcwd(), 'data/fashion-dataset/images/')
+    # my_path_cv_label_hm = os.path.join(os.getcwd(), 'data/h&mdataset/articles.csv')
+    # dataset = myDataset_labelHM(my_path_hm, my_path_cv_label_hm, get_preprocessed_image)
+    # print(len(dataset))
+    # print(dataset.get_num_classes())
+    # print(dataset[20][0].shape)
+    # plt.imshow(dataset[20][0].permute(1, 2, 0))
+    # plt.show()
+    # print(dataset[20][1])
+    # print(dataset[20][2])
+    # print(dataset.get_name_img(20))
+    # print(dataset.get_index_from_img_name(dataset.get_name_img(20)))
+    # print(dataset[dataset.get_index_from_img_name(dataset.get_name_img(20))][2])
+    # print(dataset[dataset.get_index_from_img_name(dataset.get_name_img(20))][1])
+    # print(dataset[dataset.get_index_from_img_name(dataset.get_name_img(20))][0].shape)
+    # plt.imshow(dataset[dataset.get_index_from_img_name(dataset.get_name_img(20))][0].permute(1, 2, 0))
 
 
